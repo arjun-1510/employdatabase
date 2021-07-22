@@ -1,25 +1,74 @@
-import logo from './logo.svg';
+import React from 'react';
+import { HashRouter as Router, Route } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './App.css';
+import Header from './components/layout/Header';
+import Class from './components/Class';
+import List from "./students.json";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  // Set students.json as state for list of students
+  state = {
+    students: List
+  }
+
+  // Toggle present
+  studentPresent = (id) => {
+    this.setState({students: this.state.students.map(student => {
+      if(student.id === id) {
+        student.present = !student.present
+      }
+      return student;
+    })});
+  }
+
+  render() {
+    const linkStyle = {
+      color: '#82A7DC',
+      textDecoration: 'none'
+    }
+
+    return (
+      <Router>
+        <React.Fragment>
+          {/* Page header */}
+          <Header />
+
+          {/* Main page */}
+          <Route exact path="/" render={props => (
+            <React.Fragment>
+              <table className="p">
+                <tr>
+                    <th> ID</th>
+                    <th className="nameCol"> Name</th>
+                    <th className="switchCol">Status</th>
+                </tr>
+              </table>
+              <Class students={this.state.students} studentPresent={this.studentPresent} />
+
+              {/* Redirect to summary page */}
+              <Link to="/summary">
+                <button className="btn" onClick={this.gotoSummary}>Submit</button>
+              </Link>
+            </React.Fragment>
+          )} />
+
+          {/* Summary page */}
+          <Route path="/summary" render={props => (
+            <React.Fragment>            
+              <div className="">
+                <h1>Attendance Summary</h1>
+                {/* Get total number of present students */}
+                {this.state.students.filter(student => student.present).length} students attended today's class
+              </div>
+
+              <Link style={linkStyle} to="/">Back</Link>
+            </React.Fragment>
+          )} />
+        </React.Fragment>
+      </Router>
+    );
+  }
 }
 
 export default App;
